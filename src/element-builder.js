@@ -63,5 +63,20 @@ export function toHTML(node, attr, data, registry) {
     }
     return '';
   }
+  
+  if (node.repeat && node.repeat > 1) {
+    let out = '';
+    for (let idx = 0; idx < node.repeat; idx++) {
+      const sd = { ...data, _index: idx };
+      out += buildEl(
+        { ...node, repeat: null, children: [...node.children] },
+        attr,
+        sd,
+        registry
+      );
+    }
+    return out;
+  }
+  
   return buildEl(node, attr, data, registry);
 }

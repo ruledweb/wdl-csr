@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual Rendering ESM Example</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+  </style>
+</head>
+<body>
+  
+  <div id="app-root"></div>
+
+  <script type="module">
+    // Note: In production you would use a bundler or import map.
+    import { render } from '../../dist/wdl-csr.min.js';
+
+    // 1. Define WDL JSON
+    const REGISTRY = {};
+    const COMPONENTS = [
+      { 
+        layers: 'div.card > h2 + button.btn', 
+        attr: { 
+          '.card': { style: 'border: 1px solid #ccc; padding: 1.5rem; border-radius: 8px; max-width: 400px;' },
+          'h2': { text: 'Manual ESM Render' },
+          '.btn': { 
+            text: 'Click ${label}', 
+            style: 'padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;' 
+          } 
+        } 
+      }
+    ];
+    const DATA = { label: 'Me!' };
+
+    // 2. Render manually to string
+    const htmlString = render(REGISTRY, COMPONENTS, DATA);
+    
+    // 3. Inject into DOM manually
+    document.getElementById('app-root').innerHTML = htmlString;
+  </script>
+</body>
+</html>

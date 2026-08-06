@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auto-Hydration CDN Example</title>
+  
+  <!-- 1. Provide the Data (Written by the server/backend) -->
+  <script>
+    window.WDL_CSR = {
+      "hero-banner": {
+        "COMPONENTS": [{
+          "layers": "section.hero > h1 + p + ul.list > li.feature*features",
+          "attr": {
+            ".hero": { "style": "padding: 3rem; background: #ebf8ff; font-family: sans-serif; border-radius: 8px; margin: 2rem;" },
+            "h1": { "text": "${title}" },
+            "p": { "text": "${subtitle}", "style": "margin-bottom: 1.5rem;" },
+            ".list": { "style": "list-style-type: none; padding: 0;" },
+            ".feature": { "text": "✅ ${name}", "style": "padding: 0.5rem 0; color: #0369a1; font-weight: 600;" }
+          }
+        }],
+        "DATA": {
+          "title": "Welcome to WDL Auto-Hydration",
+          "subtitle": "This HTML was rendered purely on the client side!",
+          "features": [
+            { "name": "Tiny 4kb footprint" },
+            { "name": "Auto-mounting hydration" },
+            { "name": "Zero markdown overhead" }
+          ]
+        },
+        "REGISTRY": {}
+      }
+    };
+  </script>
+</head>
+<body>
+  
+  <!-- 2. HTML Markup with target identifier -->
+  <div wdl-csr="hero-banner">Loading component...</div>
+
+  <!-- 3. Include the Script and call hydrate -->
+  <script type="module">
+    // Note: In production you would use:
+    // import { hydrate } from 'https://cdn.jsdelivr.net/npm/@ruledwdl/csr/dist/wdl-csr.min.js';
+    import { hydrate } from '../../dist/wdl-csr.min.js';
+    
+    // Automatically scans for [wdl-csr] and renders
+    hydrate();
+  </script>
+</body>
+</html>
