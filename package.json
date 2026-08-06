@@ -1,0 +1,25 @@
+{
+  "name": "@ruledwdl/csr",
+  "version": "0.1.0",
+  "description": "Ultra-lightweight client-side rendering extension for WDL components. Zero markdown parsing, zero DOM overhead.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npx esbuild src/index.js --bundle --minify --outfile=dist/wdl-csr.min.js --format=esm",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./browser": "./dist/wdl-csr.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruledweb/wdl-csr.git"
+  },
+  "author": "Pradeep Dabane <pradeep@ruledweb.com>",
+  "license": "AGPL-3.0-or-later"
+}
