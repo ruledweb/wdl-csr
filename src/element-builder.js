@@ -11,7 +11,7 @@ export function esc(str) {
     .replace(/"/g, '&quot;');
 }
 
-export function buildEl(node, attr, data, registry) {
+export function buildEl(node, attr, data, registry, opts = {}) {
   let base = {};
   for (const c of node.classes) {
     if (registry[c]) {
@@ -66,15 +66,23 @@ export function buildEl(node, attr, data, registry) {
   ]);
   if (VOID.has(node.tag)) return '<' + node.tag + a + '>';
   const RAW_TEXT = new Set(['script', 'style']);
-  // Content text is rendered as inline Markdown (escaped + sanitised inside the
-  // renderer). script/style keep their raw passthrough for JS/CSS.
-  // Raw text passthrough for CSR (no markdown dependency)
-  const txt = res.text ? String(res.text) : '';
-  const ch = node.children.map(c => toHTML(c, attr, data, registry)).join('');
+
+  let txt = '';
+  if (res.text != null && res.text !== '') {
+    if (RAW_TEXT.has(node.tag)) {
+      txt = String(res.text);
+    } else if (typeof opts.transformText === 'function') {
+      txt = opts.transformText(String(res.text), node);
+    } else {
+      txt = esc(res.text);
+    }
+  }
+
+  const ch = node.children.map(c => toHTML(c, attr, data, registry, opts)).join('');
   return '<' + node.tag + a + '>' + (ch || txt) + '</' + node.tag + '>';
 }
 
-export function toHTML(node, attr, data, registry) {
+export function toHTML(node, attr, data, registry, opts = {}) {
   if (node.loopKey) {
     const items = resolvePath(data, node.loopKey);
     if (Array.isArray(items) && items.length > 0) {
@@ -85,12 +93,13 @@ export function toHTML(node, attr, data, registry) {
             { ...node, loopKey: null, children: [...node.children] },
             attr,
             sd,
-            registry
+            registry,
+            opts
           );
         })
         .join('');
     }
     return '';
   }
-  return buildEl(node, attr, data, registry);
+  return buildEl(node, attr, data, registry, opts);
 }
