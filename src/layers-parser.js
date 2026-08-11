@@ -1,7 +1,13 @@
 // src/layers-parser.js — Synced from @ruledwdl/core
-// src/layers-parser.js — WDL Layers syntax parser
+import { WDLDomTree } from './wdl-dom-tree.js';
 
 export function parseLayers(raw) {
+  if (raw instanceof WDLDomTree) {
+    return parseLayers(raw.toString());
+  }
+  if (Array.isArray(raw)) {
+    return parseLayers(WDLDomTree.from(raw).toString());
+  }
   const str = String(raw).replace(/[()]/g, "");
   const bad = str.match(/[{}\[\]^]/);
   if (bad) {
