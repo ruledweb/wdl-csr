@@ -1,5 +1,15 @@
+// src/element-builder.js — Synced from @ruledwdl/core
+// src/renderer/element-builder.js
 import { resolveAll, resolveStr, resolvePath } from './data-resolver.js';
 import { matchAttr } from './layers-parser.js';
+
+export function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export function buildEl(node, attr, data, registry) {
   let base = {};
@@ -15,6 +25,12 @@ export function buildEl(node, attr, data, registry) {
   }
   const SKIP = new Set(['alpine', 'htmx', 'attr-ref', 'text', 'class']);
   const flat = { ...res, ...(res.alpine || {}), ...(res.htmx || {}) };
+  if (!flat['wdl-comp']) {
+    flat['wdl-comp'] = node.classes[0] || node.tag;
+  }
+  if (data && data._index !== undefined && flat['data-wdl-index'] === undefined) {
+    flat['data-wdl-index'] = String(data._index);
+  }
   const allCls = [
     ...(base.class || '').split(' '),
     ...(flat.class || '').split(' '),
@@ -24,22 +40,31 @@ export function buildEl(node, attr, data, registry) {
   let a = '';
   if (uniq.length) a += ' class="' + uniq.join(' ') + '"';
   if (node.id) a += ' id="' + node.id + '"';
-  
-  // Minimal escape for attributes only, to prevent breaking HTML syntax
-  const escAttr = (s) => String(s).replace(/"/g, '&quot;');
-  
   for (const [k, v] of Object.entries(flat)) {
     if (SKIP.has(k) || v == null || v === '') continue;
-    a += ' ' + k + '="' + escAttr(v) + '"';
+    a += ' ' + k + '="' + esc(v) + '"';
   }
-  
   const VOID = new Set([
-    'img', 'br', 'hr', 'input', 'link', 'meta', 'area', 'base', 'col', 'embed', 'param', 'source', 'track', 'wbr'
+    'img',
+    'br',
+    'hr',
+    'input',
+    'link',
+    'meta',
+    'area',
+    'base',
+    'col',
+    'embed',
+    'param',
+    'source',
+    'track',
+    'wbr'
   ]);
   if (VOID.has(node.tag)) return '<' + node.tag + a + '>';
-  
-  // Raw text passthrough. No markdown parsing, no sanitization. 
-  // It is the developer's responsibility to sanitize inputs before providing them to this library.
+  const RAW_TEXT = new Set(['script', 'style']);
+  // Content text is rendered as inline Markdown (escaped + sanitised inside the
+  // renderer). script/style keep their raw passthrough for JS/CSS.
+  // Raw text passthrough for CSR (no markdown dependency)
   const txt = res.text ? String(res.text) : '';
   const ch = node.children.map(c => toHTML(c, attr, data, registry)).join('');
   return '<' + node.tag + a + '>' + (ch || txt) + '</' + node.tag + '>';
@@ -63,20 +88,5 @@ export function toHTML(node, attr, data, registry) {
     }
     return '';
   }
-  
-  if (node.repeat && node.repeat > 1) {
-    let out = '';
-    for (let idx = 0; idx < node.repeat; idx++) {
-      const sd = { ...data, _index: idx };
-      out += buildEl(
-        { ...node, repeat: null, children: [...node.children] },
-        attr,
-        sd,
-        registry
-      );
-    }
-    return out;
-  }
-  
   return buildEl(node, attr, data, registry);
 }

@@ -10,8 +10,10 @@ By stripping out full-page composition, design token cascading, script bucket ma
 
 ## Features
 
-- **Tiny Footprint:** Zero external dependencies (no markdown parsers, no DOM sanitizers). When minified, the bundle is less than **4kb**.
+- **Tiny Footprint:** Zero external dependencies (no markdown parsers, no DOM sanitizers). When minified, the bundle is less than **4.3kb**.
 - **Pure Rendering:** Takes `REGISTRY`, `COMPONENTS`, and `DATA` JSON definitions and returns clean HTML strings.
+- **WDL Layers Syntax v0.2.0:** Full support for Emmet-like component expressions including `<` parent step-back, `<*N` multi-level repeater, and `<@N` absolute depth reference.
+- **Component Identifier Attributes:** Automatically emits `wdl-comp="{semantic-id}"` attributes on generated DOM elements for precise CSS/JS targeting.
 - **Auto-Hydration:** Includes a built-in `hydrate()` function that scans the DOM for elements marked with the `wdl-csr` attribute and automatically renders the corresponding JSON payload into them.
 - **BYOS (Bring Your Own Sanitization):** To guarantee the smallest possible bundle size, text content is treated as raw strings. The host application or backend API is strictly responsible for providing trusted/sanitized data payloads.
 

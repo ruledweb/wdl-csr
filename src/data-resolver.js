@@ -1,3 +1,4 @@
+// src/data-resolver.js — Synced from @ruledwdl/core
 // src/renderer/data-resolver.js
 
 export function resolvePath(obj, path) {

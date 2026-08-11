@@ -1,3 +1,4 @@
+// src/layers-parser.js — Synced from @ruledwdl/core
 // src/layers-parser.js — WDL Layers syntax parser
 
 export function parseLayers(raw) {
@@ -96,9 +97,39 @@ export function parseLayers(raw) {
     } else if (ch === "+") {
       i++;
     } else if (ch === "<") {
-      while (i < str.length && str[i] === "<") {
-        if (stack.length > 1) stack.pop();
+      i++;
+      if (i < str.length && str[i] === "*") {
         i++;
+        let numStr = "";
+        while (i < str.length && /\d/.test(str[i])) {
+          numStr += str[i];
+          i++;
+        }
+        const count = numStr ? parseInt(numStr, 10) : 1;
+        for (let k = 0; k < count; k++) {
+          if (stack.length > 1) stack.pop();
+        }
+      } else if (i < str.length && str[i] === "@") {
+        i++;
+        let numStr = "";
+        while (i < str.length && /\d/.test(str[i])) {
+          numStr += str[i];
+          i++;
+        }
+        const targetDepth = numStr ? parseInt(numStr, 10) : 0;
+        const targetStackLen = targetDepth + 1;
+        while (stack.length > targetStackLen && stack.length > 1) {
+          stack.pop();
+        }
+      } else {
+        let count = 1;
+        while (i < str.length && str[i] === "<") {
+          count++;
+          i++;
+        }
+        for (let k = 0; k < count; k++) {
+          if (stack.length > 1) stack.pop();
+        }
       }
     } else if (/\s/.test(ch)) {
       i++;
