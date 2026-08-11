@@ -1,7 +1,7 @@
 // src/element-builder.js — Synced from @ruledwdl/core
-// src/renderer/element-builder.js
 import { resolveAll, resolveStr, resolvePath } from './data-resolver.js';
 import { matchAttr } from './layers-parser.js';
+import { normalizeRegistryEntry } from './registry-compiler.js';
 
 export function esc(str) {
   return String(str)
@@ -14,13 +14,17 @@ export function esc(str) {
 export function buildEl(node, attr, data, registry) {
   let base = {};
   for (const c of node.classes) {
-    if (registry[c]) base = { ...base, ...resolveAll(registry[c], data) };
+    if (registry[c]) {
+      const norm = normalizeRegistryEntry(registry[c]);
+      base = { ...base, ...resolveAll(norm, data) };
+    }
   }
   const matched = resolveAll(matchAttr(node, attr), data);
   let res = { ...base, ...matched };
   const refKey = resolveStr(res['attr-ref'] || '', data);
   if (refKey && registry[refKey]) {
-    const ref = resolveAll(registry[refKey], data);
+    const normRef = normalizeRegistryEntry(registry[refKey]);
+    const ref = resolveAll(normRef, data);
     res = { ...ref, ...matched };
   }
   const SKIP = new Set(['alpine', 'htmx', 'attr-ref', 'text', 'class']);
